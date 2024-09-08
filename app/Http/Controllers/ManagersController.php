@@ -742,7 +742,7 @@ class ManagersController extends Controller implements HasMiddleware
         $password = Hash::make($req->password);
         try {
             User::insert(['name' => $req->name, 'merchant_id' => Auth::user()->merchant_id, 'store_id' => Auth::user()->store_id, 'email' => $req->email, 'phone' => $req->phone, 'username' => $req->username, 'password' => $password, 'role' => $req->role['role_id'], 'status' => $status, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
-        } catch (\Exception $e) {
+        } catch (\PDOException $e) {
             if ($e->errorInfo[1] == 1062)
                 return response()->json(['response' => "User Exits"]);
             else
@@ -756,7 +756,7 @@ class ManagersController extends Controller implements HasMiddleware
         $password = Hash::make($req->password);
         try {
             User::where('user_id', $req->userId)->update(['name' => $req->name, 'email' => $req->email, 'phone' => $req->phone, 'username' => $req->username, 'password' => $password, 'role' => $req->role['role_id'], 'updated_at' => Carbon::now()]);
-        } catch (\Exception $e) {
+        } catch (\PDOException $e) {
             if ($e->errorInfo[1] == 1062)
                 return response()->json(['response' => "User Exits"]);
             else
@@ -782,7 +782,7 @@ class ManagersController extends Controller implements HasMiddleware
             $id = Customer::insertGetId(['registered_by_user_id' => Auth::user()->user_id, 'merchant_id' => Auth::user()->merchant_id, 'store_id' => Auth::user()->store_id, 'cus_name' => $req->name, 'cus_mobile' => $req->phone, 'cus_mail' => $req->email, 'cus_address' => $req->address, 'payment_id' => $req->payment['payment_id'], 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()], 'cus_id');
             Credit::insert(['cus_id' => $id, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
             Discount::insert(['cus_id' => $id, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
-        } catch (\Exception $e) {
+        } catch (\PDOException $e) {
             DB::rollback();
             if ($e->errorInfo[1] == 1062)
                 return response()->json(['response' => "Customer Exits", "status" => false]);
@@ -797,7 +797,7 @@ class ManagersController extends Controller implements HasMiddleware
     {
         try {
             Customer::where('cus_id', $req->id)->update(['cus_name' => $req->name, 'cus_mobile' => $req->phone, 'cus_mail' => $req->mail, 'cus_address' => $req->address, 'payment_id' => $req->pay['payment_id'], 'updated_at' => Carbon::now()]);
-        } catch (\Exception $e) {
+        } catch (\PDOException $e) {
             if ($e->errorInfo[1] == 1062)
                 return response()->json(['response' => "Customer Exits"]);
             else

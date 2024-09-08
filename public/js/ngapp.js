@@ -438,13 +438,7 @@ salesPortal.controller("sales", function($scope,$location,$http, $filter, $timeo
                 $http({url:"processorder", method:"POST", data:datas}).then((res)=>{
                         modalProcessNotify("",'false');
                         if(print){
-                                qz.printers.getDefault().then((printer)=>{
-                                        var config = qz.configs.create(printer);       // Create a default config for the found printer
-                                        res.data.forEach((value, index)=>{
-                                            qz.print(config, value);
-                                        })
-                                        modalNotificate("Transaction Successful",2000,'./');
-                                })
+                                $scope.printModule(res.data, "Transaction Successful");
                         }else{
                                 modalNotificate("Transaction Successful",2000,'./');
                         }
@@ -454,13 +448,13 @@ salesPortal.controller("sales", function($scope,$location,$http, $filter, $timeo
                 })
         }
 
-        $scope.printModule = (data)=>{
+        $scope.printModule = (data, message)=>{
                 qz.printers.getDefault().then((printer)=>{
                         var config = qz.configs.create(printer);       // Create a default config for the found printer
                         data.forEach((value, index)=>{
                             qz.print(config, value);
                         })
-                        modalNotificate("Printing...",2000,'./');
+                        modalNotificate(message,2000,'./');
                 })
         }
 
@@ -469,10 +463,10 @@ salesPortal.controller("sales", function($scope,$location,$http, $filter, $timeo
                 $http({url:"reprintreceipt/"+orderId, method:"GET"}).then((res)=>{
                         modalProcessNotify("",'false');
                         if(qz.websocket.isActive()){
-                                $scope.printModule(res.data);
+                                $scope.printModule(res.data, "Printing...");
                         }else{
                                 qz.websocket.connect().then(()=> {
-                                        $scope.printModule(res.data);
+                                        $scope.printModule(res.data, "Printing...");
                                 }).catch((e)=>{
                                         console.error(e);
                                         modalProcessNotify("",'false');
@@ -653,7 +647,6 @@ retailOffice.controller("confirmPurchase", function($scope,$http){
         }
 
 })
-
 
 
 

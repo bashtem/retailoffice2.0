@@ -97,15 +97,16 @@ class SalesController extends Controller implements HasMiddleware
             $id = Customer::insertGetId(['merchant_id' => Auth::user()->merchant_id, 'store_id' => Auth::user()->store_id, 'registered_by_user_id' => Auth::user()->user_id, 'cus_name' => $req->cusName, 'cus_mobile' => $req->cusMobile, 'cus_mail' => $cusMail, 'cus_address' => $req->cusAddress, 'payment_id' => $req->cusPayment, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()], 'cus_id');
             Credit::insert(['cus_id' => $id, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
             Discount::insert(['cus_id' => $id, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
-        } catch (\Exception $e) {
+
+            DB::commit();
+            return redirect('/')->with("info", "modalNotificate('Customer Added Successfully!')");
+        } catch (\PDOException $e) {
             DB::rollback();
             if ($e->errorInfo[1] == 1062)
                 return redirect('/')->with("info", "modalNotificate('Customer Already Exist!')");
             else
                 return redirect('/')->with("info", "modalNotificate('Customer Registration Failed')");
         }
-        DB::commit();
-        return redirect('/')->with("info", "modalNotificate('Customer Added Successfully!')");
     }
 
     public function fetchCustomers()
@@ -153,7 +154,7 @@ class SalesController extends Controller implements HasMiddleware
         $receiptDatas = array();
         $order = (array)$req->order;
         $invoiceNumber = 'SO-' . date('ymdhis');
-        $orderDatas = array_merge($order, ['merchant_id' => Auth::user()->merchant_id, 'store_id' => Auth::user()->store_id, 'order_no' => $invoiceNumber, 'user_id' => Auth::user()->user_id, 'order_date' => date('Y/m/d'), 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
+        $orderDatas = array_merge($order, ['merchant_id' => Auth::user()->merchant_id, 'store_id' => Auth::user()->store_id, 'order_no' => $invoiceNumber, 'user_id' => Auth::user()->user_id, 'order_date' => date('Y/m/d'), 'order_total_amount' => 0, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
         $orderArr = $req['orderItems'];
         $orderTotalAmount = 0; // NEW
 

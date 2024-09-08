@@ -400,7 +400,7 @@ class ManagerApiController extends Controller implements HasMiddleware
             $id = Customer::insertGetId(['registered_by_user_id' => Auth::user()->user_id, 'merchant_id' => Auth::user()->merchant_id, 'store_id' => Auth::user()->store_id, 'cus_name' => $data['name'], 'cus_mobile' => $data['phone'], 'cus_mail' => $data['email'], 'cus_address' => $data['address'], 'payment_id' => $data['payment']['payment_id'], 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()], 'cus_id');
             Credit::insert(['cus_id' => $id, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
             Discount::insert(['cus_id' => $id, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
-        } catch (\Exception $e) {
+        } catch (\PDOException $e) {
             DB::rollback();
             if ($e->errorInfo[1] == 1062)
                 return response()->json(['response' => "Customer Exits", "status" => false]);
@@ -551,7 +551,7 @@ class ManagerApiController extends Controller implements HasMiddleware
         $password = Hash::make($data['password']);
         try {
             user::insert(['name' => $data['name'], 'merchant_id' => Auth::user()->merchant_id, 'store_id' => Auth::user()->store_id, 'email' => $data['email'], 'phone' => $data['phone'], 'username' => $data['username'], 'password' => $password, 'role' => $data['role']['role_id'], 'status' => $status, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
-        } catch (\Exception $e) {
+        } catch (\PDOException $e) {
             if ($e->errorInfo[1] == 1062)
                 return response()->json(['response' => "User Exits", 'status' => false]);
             else
