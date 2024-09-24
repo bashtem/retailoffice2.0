@@ -145,15 +145,16 @@ class StocksController extends Controller implements HasMiddleware
 
     public function fetchTransferQty(Request $req)
     {
-        $datas = Quantity_conversion::where([["item_id", '=', $req['item_id']], ["initial_qty_id", '=', $req['initial_qty_id']], ["converted_qty_id", '=', $req['converted_qty_id']]])->where(["store_id" => Auth::user()->store_id])->first();
-        if (count($datas) > 0) {
+        $datas = Quantity_conversion::where([["item_id", '=', $req->item_id], ["initial_qty_id", '=', $req->initial_qty_id], ["converted_qty_id", '=', $req->converted_qty_id]])->where(["store_id" => Auth::user()->store_id])->first();
+        if ($datas->count() > 0) {
             // $srcQty = item_qty::where([["item_id",'=',$req['item_id']],["qty_id",'=',$req['initial_qty_id']]])->first();
             // if($req['initial_qty'] > $srcQty->quantity){
             //     return 'Stock Quantity Exceeded';
             // }else{
-            $datas['trnQty'] = round((($req['initial_qty']) * ($datas['converted_qty'])) / ($datas['initial_qty']), 4);
-            return $datas;
-            // }
+            if ($datas['initial_qty'] > 0) {
+                $datas['trnQty'] = round((($req['initial_qty']) * ($datas['converted_qty'])) / ($datas['initial_qty']), 4);
+                return $datas;
+            }
         }
         return;
     }

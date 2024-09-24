@@ -289,7 +289,7 @@ class ManagersController extends Controller implements HasMiddleware
     {
         DB::beginTransaction();
         try {
-            $flagExist = DB::table("quantity_conversions")->where([["item_id", '=', $req['item_id']], ["initial_qty_id", '=', $req['initial_qty_id']], ["converted_qty_id", '=', $req['converted_qty_id'], ['store_id', '=', Auth::user()->store_id]]])->first();
+            $flagExist = DB::table("quantity_conversions")->where([["item_id", '=', $req->item_id], ["initial_qty_id", '=', $req->initial_qty_id], ["converted_qty_id", '=', $req->converted_qty_id], ['store_id', '=', Auth::user()->store_id]])->get();
             if (!$flagExist) {
                 $req['created_at'] = Carbon::now();
                 $req['updated_at'] = Carbon::now();
