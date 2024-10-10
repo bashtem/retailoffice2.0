@@ -39,17 +39,23 @@ class SalesController extends Controller implements HasMiddleware
         ];
     }
 
-    public function receiptFn($datas, $bottomTitle, $onlyUnit = false)
+    public function receiptFn($datas, $bottomTitle, $onlyUnit = false, $duplicate = false)
     {
-        // [ 'merchantAddress'=>'',  'merchantPhone'=>'',  'cusName'=>'',  'orderTime'=>'',  'invoiceNumber'=>'',  'cashier'=>'',  'items'=>'',  'totalAmount'=>'',  'totalDiscount'=>'',  'netTotal'=>'',  'merchantTitle'=>'',];
         $header = ($onlyUnit) ? 'ITEM' . "\x09" . "\x09" . "\x09" . 'QTY' . "\x09" . 'UNIT COST' . "\x09" . "\n" : 'ITEM' . "\x09" . "\x09" . "\x09" . 'QTY' . "\x09" . 'UNIT COST' . "\x09" . 'AMOUNT' . "\n";
+        $duplicateHead = '';
+        $reprintDate = '';
+        if($duplicate){
+            $duplicateHead = "\n"."\x1B" . "\x61" . "\x31".'-----------------------------------------------' . "\n" . 'DUPLICATE RECEIPT' . "\n". '-----------------------------------------------'. "\n";
+            $reprintDate = 'REPRINT DATE:  ' . date("d-m-Y") . ' ' . date('h:i:s') . "\n";
+        }
         return [
             "\x1B" . "\x40",          // init
             "\x1B" . "\x61" . "\x31", // center align
+            $duplicateHead,
             $datas['merchantTitle'] . "\n",
             "\x1B" . "\x61" . "\x30", // left align
             $datas['merchantAddress'] . "\n",     // text and line break
-            'TELEPHONE: ' . $datas['merchantPhone'] . "\n",                   // line break
+            'TELEPHONE: ' . $datas['merchantPhone'] . "\n",    // line break
             "\n",
             "\x1B" . "\x61" . "\x31", // center align
             '-----------------------------------------------' . "\n",
@@ -57,8 +63,10 @@ class SalesController extends Controller implements HasMiddleware
             '-----------------------------------------------' . "\n",
             "\x1B" . "\x61" . "\x30", // left align
             'CUSTOMER:      ' . $datas['cusName'] . "\n",
-            'DATE:          ' . date("d-m-Y") . ' ' . date('h:i:s') . "\n",
+            'DATE:          ' . $datas['orderDate'] . ' ' . $datas['orderTime'] . "\n",
+            $reprintDate,
             'INVOICE NO:    ' . $datas['invoiceNumber'] . "\n",
+            'SERIAL NO:     ' . $datas['serialNumber'] . "\n",
             'CASHIER:       ' . $datas['cashier'] . "\n",
             '------------------------------------------------' . "\n",
             $header,
@@ -232,26 +240,30 @@ class SalesController extends Controller implements HasMiddleware
                 $amount = $price * $orderArr[$x]['qty'];    // NEW
                 $strlen = 20 - strlen($req['orderItems'][$x]['name']);
                 $qty = $req['orderItems'][$x]['qty'];
-                $itemsReceipt .= '' . str_pad(trim(strtoupper($req['orderItems'][$x]['name'])), $strlen) . "\x09" . $qty . "\x09" . $price . "\x09" . number_format($amount, 2, '.', '') . "\x0A";
-                $itemReceiptNoUnit .= '' . str_pad(trim(strtoupper($req['orderItems'][$x]['name'])), $strlen) . "\x09" . $qty . "\x09" . $price . "\x09" . "\x0A";
+                $itemsReceipt .= '' . str_pad(trim(strtoupper($req['orderItems'][$x]['name'])), $strlen) . "\x09" . round($qty, 3) . "\x09" . round($price, 2) . "\x09" .round($amount, 2) . "\x0A";
+                $itemReceiptNoUnit .= '' . str_pad(trim(strtoupper($req['orderItems'][$x]['name'])), $strlen) . "\x09" . round($qty, 3) . "\x09" . round($price, 2) . "\x09" . "\x0A";
             }
 
             $netTotal = $orderTotalAmount; //+ $req['totalDiscount'];   // NEW
             $merchant = Merchant_store::where('store_id', Auth::user()->store_id)->first();
             $printCopy = ['TELLER COPY', 'CUSTOMER COPY', 'STOCK KEEPER COPY'];
+            $orderCount = Order::where(['store_id' => Auth::user()->store_id, 'order_date' => Carbon::now()->toDateString()])->count();
+            Order::where('order_id', $order)->update(['serial_no' => $orderCount]);
             foreach ($printCopy as $key => $value) {
                 $receiptFnData = [
                     'merchantTitle' => $merchant->title,
                     'merchantAddress' => $merchant->address,
                     'merchantPhone' => $merchant->telephone,
                     'cusName' => $req->cus_name,
-                    'orderTime' => $req->order_time,
+                    'orderTime' => $req['order']['order_time'],
+                    'orderDate' => date("d-m-Y"),
                     'invoiceNumber' => $invoiceNumber,
                     'cashier' => Auth::user()->name,
                     'items' => (count($printCopy) == ($key + 1)) ? $itemReceiptNoUnit : $itemsReceipt,
-                    'totalAmount' => number_format($orderTotalAmount, 2, '.', ''),     // NEW
+                    'totalAmount' => number_format($orderTotalAmount, 2, '.', ''), 
                     'totalDiscount' => number_format($req['totalDiscount'], 2, '.', ''),
-                    'netTotal' => number_format($netTotal, 2, '.', '')
+                    'netTotal' => number_format($netTotal, 2, '.', ''),
+                    'serialNumber' => $orderCount
                 ];
                 $receiptDatas[] = (count($printCopy) == ($key + 1)) ? $this->receiptFn($receiptFnData, $value, true) : $this->receiptFn($receiptFnData, $value);
             }
@@ -284,14 +296,16 @@ class SalesController extends Controller implements HasMiddleware
                 'merchantPhone' => $merchant->telephone,
                 'cusName' => $order->cus->cus_name,
                 'orderTime' => $order->order_time,
+                'orderDate' => date("d-m-Y"),
                 'invoiceNumber' => $order->order_no,
                 'cashier' => $order->user->name,
                 'items' => (count($printCopy) == ($key + 1)) ? $itemReceiptNoUnit : $itemsReceipt,
-                'totalAmount' => round($order->order_total_amount, 2),
-                'totalDiscount' => round(($order->discount->total_discount) ?? 0, 2),
-                'netTotal' => round($order->order_total_amount, 2)
+                'totalAmount' => number_format($order->order_total_amount, 2, '.', ''),
+                'totalDiscount' => number_format(($order->discount->total_discount) ?? 0,  2, '.', ''),
+                'netTotal' => number_format($order->order_total_amount, 2, '.', ''),
+                'serialNumber' => $order->serial_no
             ];
-            $receiptDatas[] = (count($printCopy) == ($key + 1)) ? $this->receiptFn($receiptFnData, $value, true) : $this->receiptFn($receiptFnData, $value);
+            $receiptDatas[] = (count($printCopy) == ($key + 1)) ? $this->receiptFn($receiptFnData, $value, true, true) : $this->receiptFn($receiptFnData, $value, false, true);
         }
         Order::where('order_id', $orderId)->update(['receipt_printed' => 1]);
         return $receiptDatas;
