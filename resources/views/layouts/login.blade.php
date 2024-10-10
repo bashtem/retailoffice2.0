@@ -7,15 +7,15 @@
     <title>Retail Office</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" media="screen" href={{url("/css/custom.css")}} />
-    <link rel="stylesheet" type="text/css" media="screen" href={{url("/css/animate.css")}} />
-    <link rel="stylesheet" type="text/css" media="screen" href={{url("/css/bootstrap.min.css")}} />
+    <link rel="stylesheet" type="text/css" media="screen" href={{asset("/css/custom.css")}} />
+    <link rel="stylesheet" type="text/css" media="screen" href={{asset("/css/animate.css")}} />
+    <link rel="stylesheet" type="text/css" media="screen" href={{asset("/css/bootstrap.min.css")}} />
 </head>
 <body style="background-image: url({{asset('/img/background.jpg')}} )">
     <div class="container-fluid ">
         <div class="row justify-content-center ">
             <div class="col-md-4 mt-5">
-                <div class="text-center"><img src={{url("img/logo.svg")}}  style="width:50px; height:50px" class="rounded-circle img-thumbnail mb-2" ></div>
+                <div class="text-center"><img src={{asset("img/logo.svg")}}  style="width:50px; height:50px" class="rounded-circle img-thumbnail mb-2" ></div>
                 @yield('content')
             </div>
         </div>
@@ -30,9 +30,9 @@
     </div>     
 
     
-    <script src={{url("/js/jquery-1.12.3.js")}} ></script>    
-    <script src={{url("/js/bootstrap.min.js")}} ></script> 
-    <script src={{url("/js/fontawesome-all.min.js")}} ></script>
+    <script src={{asset("/js/jquery-1.12.3.js")}} ></script>    
+    <script src={{asset("/js/bootstrap.min.js")}} ></script> 
+    <script src={{asset("/js/fontawesome-all.min.js")}} ></script>
 </body>
 </html>
 

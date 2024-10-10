@@ -7,14 +7,14 @@
 <title>Retail Office</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="shortcut icon" href="#">
-<link rel="stylesheet" type="text/css" media="screen" href={{url("/css/custom.css")}} />
-<link rel="stylesheet" type="text/css" media="screen" href={{url("/css/jquery.skeleton.css")}} />
-<link rel="stylesheet" type="text/css" media="screen" href={{url("/css/animate.css")}} />
-<link rel="stylesheet" type="text/css" media="screen" href={{url("/css/bootstrap.min.css")}} />
-<link rel="stylesheet" type="text/css" media="screen" href={{url("/css/sb-admin.css")}}>       
-<link rel="stylesheet" type="text/css" media="screen" href={{url("/css/select2.css")}} /> 
-<link rel="stylesheet" type="text/css" media="screen" href={{url("/css/datatables.min.css")}}>       
-<link rel="stylesheet" type="text/css" media="screen" href={{url("/css/pretty-checkbox.min.css")}} /> 
+<link rel="stylesheet" type="text/css" media="screen" href={{asset("/css/custom.css")}} />
+<link rel="stylesheet" type="text/css" media="screen" href={{asset("/css/jquery.skeleton.css")}} />
+<link rel="stylesheet" type="text/css" media="screen" href={{asset("/css/animate.css")}} />
+<link rel="stylesheet" type="text/css" media="screen" href={{asset("/css/bootstrap.min.css")}} />
+<link rel="stylesheet" type="text/css" media="screen" href={{asset("/css/sb-admin.css")}}>       
+<link rel="stylesheet" type="text/css" media="screen" href={{asset("/css/select2.css")}} /> 
+<link rel="stylesheet" type="text/css" media="screen" href={{asset("/css/datatables.min.css")}}>       
+<link rel="stylesheet" type="text/css" media="screen" href={{asset("/css/pretty-checkbox.min.css")}} /> 
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-177459834-1"></script>
 <script>
@@ -23,9 +23,9 @@
     gtag('js', new Date());
     gtag('config', 'UA-177459834-1');
 </script>
-<script src={{url("/js/jquery-1.12.3.js")}} ></script>
-<script src={{url("/js/angular.min.js")}} ></script>
-<script src={{url("/js/lodash.js")}} ></script>
+<script src={{asset("/js/jquery-1.12.3.js")}} ></script>
+<script src={{asset("/js/angular.min.js")}} ></script>
+<script src={{asset("/js/lodash.js")}} ></script>
 
 </head>
 
@@ -33,7 +33,7 @@
    
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top p-0" id="mainNav">
-    <a class="navbar-brand text-center" href="#"><img src={{url("img/logo.svg")}}  style="width:50px; height:50px" class="rounded-circle img-thumbnail mb-2" ></a>
+    <a class="navbar-brand text-center" href="#"><img src={{asset("img/logo.svg")}}  style="width:50px; height:50px" class="rounded-circle img-thumbnail mb-2" ></a>
     <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
     </button>
@@ -118,22 +118,22 @@
 
 
 @include('layouts.notification')
-<script src={{url("/js/jquery.scheletrone.js")}} ></script> 
-<script src={{url("/js/Chart.bundle.min.js")}} ></script> 
-<script src={{url("/js/angular-animate.min.js")}} ></script> 
-<script src={{url("/js/angular-datatables.min.js")}} ></script> 
-<script src={{url("/js/datatables.min.js")}} ></script>
-<script src={{url("/js/ui-bootstrap-tpls-2.5.0.js")}} ></script> 
-<script src={{url("/js/select2.js")}} ></script> 
-<script src={{url("/js/angular-ui-select2.js")}} ></script> 
-<script  src={{url("/js/popper.js")}} ></script>       
-<script src={{url("/js/bootstrap.min.js")}} ></script>         
-<script src={{url("/js/jquery.easing.min.js")}} ></script>
-<script src={{url("/js/fontawesome-all.min.js")}} ></script>        
-<script src={{url("/js/sb-admin.min.js")}} ></script>
-<script  src={{url("/js/ajax.js")}}  ></script>
-<script src={{url("/js/angular-route.min.js")}} ></script>
-<script  src={{url("/js/ngapp.js")}} ></script>
+<script src={{asset("/js/jquery.scheletrone.js")}} ></script> 
+<script src={{asset("/js/Chart.bundle.min.js")}} ></script> 
+<script src={{asset("/js/angular-animate.min.js")}} ></script> 
+<script src={{asset("/js/angular-datatables.min.js")}} ></script> 
+<script src={{asset("/js/datatables.min.js")}} ></script>
+<script src={{asset("/js/ui-bootstrap-tpls-2.5.0.js")}} ></script> 
+<script src={{asset("/js/select2.js")}} ></script> 
+<script src={{asset("/js/angular-ui-select2.js")}} ></script> 
+<script  src={{asset("/js/popper.js")}} ></script>       
+<script src={{asset("/js/bootstrap.min.js")}} ></script>         
+<script src={{asset("/js/jquery.easing.min.js")}} ></script>
+<script src={{asset("/js/fontawesome-all.min.js")}} ></script>        
+<script src={{asset("/js/sb-admin.min.js")}} ></script>
+<script  src={{asset("/js/ajax.js")}}  ></script>
+<script src={{asset("/js/angular-route.min.js")}} ></script>
+<script  src={{asset("/js/ngapp.js")}} ></script>
 
 </body>
 </html>

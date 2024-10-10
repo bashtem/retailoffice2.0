@@ -7,9 +7,9 @@
     <title>Retail Office</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" media="screen" href={{url("/css/custom.css")}} />
-    <link rel="stylesheet" type="text/css" media="screen" href={{url("/css/animate.css")}} />
-    <link rel="stylesheet" type="text/css" media="screen" href={{url("/css/bootstrap.min.css")}} />
+    <link rel="stylesheet" type="text/css" media="screen" href="{{asset('/css/custom.css')}}" />
+    <link rel="stylesheet" type="text/css" media="screen" href="{{asset('/css/animate.css')}}" />
+    <link rel="stylesheet" type="text/css" media="screen" href="{{asset('/css/bootstrap.min.css')}}" />
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-177459834-1"></script>
     <script>
@@ -22,7 +22,7 @@
 <body>
     <div class="container-fluid">
         <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
-            <a class="navbar-brand text-center" href="#"><img src={{url("img/logo.svg")}}  style="width:50px; height:50px" class="rounded-circle img-thumbnail mb-2" ></a> 
+            <a class="navbar-brand text-center" href="#"><img src={{asset("img/logo.svg")}}  style="width:50px; height:50px" class="rounded-circle img-thumbnail mb-2" ></a> 
             <span class="size11 text-muted"></span>      
 
                 @yield('user')
@@ -40,9 +40,9 @@
     </div>     
 
     
-    <script src={{url("/js/jquery-1.12.3.js")}} ></script>    
-    <script src={{url("/js/bootstrap.min.js")}} ></script> 
-    <script src={{url("/js/fontawesome-all.min.js")}} ></script>
+    <script src={{asset("/js/jquery-1.12.3.js")}} ></script>    
+    <script src={{asset("/js/bootstrap.min.js")}} ></script> 
+    <script src={{asset("/js/fontawesome-all.min.js")}} ></script>
 </body>
 </html>
 

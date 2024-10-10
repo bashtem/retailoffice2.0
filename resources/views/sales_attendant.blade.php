@@ -5,11 +5,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Sales Attendant</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" media="screen" href={{url("/css/saleCustom.css")}} />
-    <link rel="stylesheet" type="text/css" media="screen" href={{url("/css/animate.css")}} />
-    <link rel="stylesheet" type="text/css" media="screen" href={{url("/css/bootstrap.min.css")}} />
-    <link rel="stylesheet" type="text/css" media="screen" href={{url("/css/select2.css")}} /> 
-    <link rel="stylesheet" type="text/css" media="screen" href={{url("/css/jquery-ui.min.css")}} /> 
+    <link rel="stylesheet" type="text/css" media="screen" href={{asset("/css/saleCustom.css")}} />
+    <link rel="stylesheet" type="text/css" media="screen" href={{asset("/css/animate.css")}} />
+    <link rel="stylesheet" type="text/css" media="screen" href={{asset("/css/bootstrap.min.css")}} />
+    <link rel="stylesheet" type="text/css" media="screen" href={{asset("/css/select2.css")}} /> 
+    <link rel="stylesheet" type="text/css" media="screen" href={{asset("/css/jquery-ui.min.css")}} /> 
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-177459834-1"></script>
     <script>
@@ -24,7 +24,7 @@
         <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top" >
             <a class="navbar-brand text-center" href="#" >
                <div style="width:130px; height:50px"> 
-                   <img src={{url("img/logo.svg")}}  style="width:50px; height:50px"  class="rounded-circle img-thumbnail mb-2" >
+                   <img src={{asset("img/logo.svg")}}  style="width:50px; height:50px"  class="rounded-circle img-thumbnail mb-2" >
                  </div> 
             </a> 
             <span class="size11 text-muted"></span>          
@@ -468,25 +468,25 @@
     </div>
 </div>
 
-    <script src={{url("/js/jquery-1.12.3.js")}} ></script>
-    {{-- <script src={{url("/js/jquery-ui.min.js")}} ></script> --}}
-    <script src={{url("/js/lodash.js")}} ></script>
-    <script src={{url("/js/angular.min.js")}} ></script> 
-    <script src={{url("/js/angular-animate.min.js")}} ></script> 
-    <script src={{url("/js/ui-bootstrap-tpls-2.5.0.js")}} ></script> 
-    {{-- <script src={{url("/js/date.js")}} ></script>  --}}
-    <script  src={{url("/js/popper.js")}} ></script> 
-    <script src={{url("/js/bootstrap.min.js")}} ></script> 
-    <script src={{url("/js/select2.js")}} ></script> 
-    <script src={{url("/js/angular-ui-select2.js")}} ></script> 
-    <script src={{url("/js/fontawesome-all.min.js")}} ></script>
-    <script src={{url("/js/rsvp-3.1.0.min.js")}} ></script> 
-    <script src={{url("/js/sha-256.min.js")}} ></script> 
-    <script src={{url("/js/qz-tray.js")}} ></script> 
-    <script src={{url("/js/jsrsasign-qz-all-min.js")}} ></script> 
-    <script src={{url("/js/qz-cert.js")}} ></script> 
-    <script  src={{url("/js/ngapp.js")}} ></script> 
-    <script src={{url("/js/ajax.js")}} ></script>
+    <script src={{asset("/js/jquery-1.12.3.js")}} ></script>
+    {{-- <script src={{asset("/js/jquery-ui.min.js")}} ></script> --}}
+    <script src={{asset("/js/lodash.js")}} ></script>
+    <script src={{asset("/js/angular.min.js")}} ></script> 
+    <script src={{asset("/js/angular-animate.min.js")}} ></script> 
+    <script src={{asset("/js/ui-bootstrap-tpls-2.5.0.js")}} ></script> 
+    {{-- <script src={{asset("/js/date.js")}} ></script>  --}}
+    <script  src={{asset("/js/popper.js")}} ></script> 
+    <script src={{asset("/js/bootstrap.min.js")}} ></script> 
+    <script src={{asset("/js/select2.js")}} ></script> 
+    <script src={{asset("/js/angular-ui-select2.js")}} ></script> 
+    <script src={{asset("/js/fontawesome-all.min.js")}} ></script>
+    <script src={{asset("/js/rsvp-3.1.0.min.js")}} ></script> 
+    <script src={{asset("/js/sha-256.min.js")}} ></script> 
+    <script src={{asset("/js/qz-tray.js")}} ></script> 
+    <script src={{asset("/js/jsrsasign-qz-all-min.js")}} ></script> 
+    <script src={{asset("/js/qz-cert.js")}} ></script> 
+    <script  src={{asset("/js/ngapp.js")}} ></script> 
+    <script src={{asset("/js/ajax.js")}} ></script>
     
 @include('layouts.notification')
     
