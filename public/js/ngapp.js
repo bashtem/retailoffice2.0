@@ -1332,6 +1332,7 @@ retailOffice.controller('report', function($scope, $http, $filter, $window, fns)
                 {value:11, type:"Top Customers by Ticket"},
                 {value:12, type:"Top Customers by Amount"},
                 {value:13, type:"Top Customers by Volume"},
+                {value:14, type:"Admin Inventory Adjustment"},
         ];
         
         $scope.selectedReport  = $scope.reportMenu[0];
@@ -1418,6 +1419,9 @@ retailOffice.controller('report', function($scope, $http, $filter, $window, fns)
                         case 13:
                                 $scope.cusByVolumeList = res.data.cusByVolumeList
                                 $scope.cusByVolumeTotals = {totalQty : res.data.totalQty, totalAmount : res.data.totalAmount}
+                                break;
+                        case 14:
+                                $scope.inventoryAdjustmentList = res.data.inventoryAdjustmentList                                
                                 break;
                         default:
                             break;

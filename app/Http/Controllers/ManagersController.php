@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\AdminInventoryAdjustment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -1075,6 +1076,10 @@ class ManagersController extends Controller implements HasMiddleware
                 return ["cusByVolumeList" => $cusByVolumeList, "totalQty" => $totalQty, "totalAmount" => $totalAmount];
                 break;
 
+            case '14':
+                $inventoryAdjustmentList = DB::select("SELECT u.`name` 'admin', i.item_name, old_qty, new_qty, (new_qty - old_qty) 'difference', ql.date, ql.time FROM item_qty_logs ql JOIN items i ON ql.item_id = i.item_id JOIN users u ON ql.user_id = u.user_id JOIN user_roles ur ON u.role = ur.role_id WHERE ql.store_id = ? AND (new_qty - old_qty) <> 0 AND ur.role_level = 'ADMIN' AND (ql.date between ? AND ?) ORDER BY ql.id ASC", [Auth::user()->store_id, $req->fromDate, $req->toDate]);
+                return ["inventoryAdjustmentList" => $inventoryAdjustmentList]; 
+                break;
             default:
                 # code...
                 break;
@@ -1244,7 +1249,11 @@ class ManagersController extends Controller implements HasMiddleware
                 return Excel::download(new CustomerVolume(["cusByVolumeList" => $cusByVolumeList, "totals" => $totals]), "Top_Customers_By_Volume_" . $fromDate . "_TO_" . $toDate . ".xlsx");
 
                 break;
-
+            case '14':
+                $inventoryAdjustmentList = DB::select("SELECT u.`name` 'admin', i.item_name, old_qty, new_qty, (new_qty - old_qty) 'difference', ql.date, ql.time FROM item_qty_logs ql JOIN items i ON ql.item_id = i.item_id JOIN users u ON ql.user_id = u.user_id JOIN user_roles ur ON u.role = ur.role_id WHERE ql.store_id = ? AND (new_qty - old_qty) <> 0 AND ur.role_level = 'ADMIN' AND (ql.date between ? AND ?) ORDER BY ql.id ASC", [Auth::user()->store_id, $fromDate, $toDate]);            
+                return Excel::download(new AdminInventoryAdjustment(["inventoryAdjustmentList" => $inventoryAdjustmentList]), "Admin_Inventory_Adjustment_" . $fromDate . "_TO_" . $toDate . ".xlsx");
+                
+                break;
             default:
                 # code...
                 break;

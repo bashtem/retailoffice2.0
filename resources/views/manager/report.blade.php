@@ -730,6 +730,41 @@
                                                 </div>
                                         </div>
                                 </div>
+                                <div class="row" ng-show="14 == selectedReport.value">
+                                        <div class="col-md-10 ">
+                                                <table class="table table-hover table-sm table-striped">
+                                                        <thead>
+                                                                <tr class="table-light">
+                                                                        <th>ADMIN</th>
+                                                                        <th>ITEM</th>
+                                                                        <th>OLD QTY</th>
+                                                                        <th>NEW QTY</th>
+                                                                        <th>DIFFERENCE</th>
+                                                                        <th>DATE</th>
+                                                                        <th>TIME</th>
+                                                                </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                                <tr ng-repeat="x in inventoryAdjustmentList">
+                                                                        <td>@{{x.admin}} </td>
+                                                                        <td>@{{x.item_name}} </td>
+                                                                        <td>@{{x.old_qty | number}} </td>
+                                                                        <td>@{{x.new_qty | number}} </td>
+                                                                        <td>@{{x.difference | number}} </td>
+                                                                        <td>@{{x.date}} </td>
+                                                                        <td>@{{x.time}} </td>
+                                                                </tr>
+
+                                                        </tbody>
+                                                </table>
+                                                <div class="alert alert-light text-center"
+                                                        ng-show="inventoryAdjustmentList.length == 0">
+                                                        <h6 class="alert-heading"><i class="fa fa-database"></i> No
+                                                                Records Available...</h6>
+                                                        <p class="mb-0">.</p>
+                                                </div>
+                                        </div>
+                                </div>
                         </div>
                 </div>
         </div>
