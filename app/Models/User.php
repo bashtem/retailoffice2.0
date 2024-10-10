@@ -3,15 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Hash;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Laravel\Sanctum\HasApiTokens as SanctumHasApiTokens;
 
 class User extends Authenticatable
 {
-    use Notifiable, SanctumHasApiTokens ;
+    use Notifiable, HasApiTokens ;
 
     /**
      * The attributes that are mass assignable.
