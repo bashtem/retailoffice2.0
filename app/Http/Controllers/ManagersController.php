@@ -24,6 +24,7 @@ use App\Exports\CustomerTicket;
 use App\Exports\CustomerVolume;
 use App\Exports\ItemQtyHistory;
 use App\Exports\PurchasedItems;
+use App\Exports\StockAudit;
 use App\Exports\TotalSummary;
 use App\Http\Middleware\Admin;
 use App\Models\Credit;
@@ -1080,6 +1081,10 @@ class ManagersController extends Controller implements HasMiddleware
                 $inventoryAdjustmentList = DB::select("SELECT u.`name` 'admin', i.item_name, old_qty, new_qty, (new_qty - old_qty) 'difference', ql.date, ql.time FROM item_qty_logs ql JOIN items i ON ql.item_id = i.item_id JOIN users u ON ql.user_id = u.user_id JOIN user_roles ur ON u.role = ur.role_id WHERE ql.store_id = ? AND (new_qty - old_qty) <> 0 AND ur.role_level = 'ADMIN' AND (ql.date between ? AND ?) ORDER BY ql.id ASC", [Auth::user()->store_id, $req->fromDate, $req->toDate]);
                 return ["inventoryAdjustmentList" => $inventoryAdjustmentList]; 
                 break;
+            case '15':
+                $stockAuditList = DB::select("SELECT u.`name` seller, i.item_name, old_qty, new_qty, (new_qty - old_qty) 'difference', ql.date, ql.time FROM item_qty_logs ql JOIN items i ON ql.item_id = i.item_id JOIN users u ON ql.user_id = u.user_id JOIN user_roles ur ON u.role = ur.role_id WHERE ql.store_id = ? AND (new_qty - old_qty) <> 0 AND ur.role_level <> 'ADMIN' AND (ql.date between ? AND ?) ORDER BY ql.id ASC", [Auth::user()->store_id, $req->fromDate, $req->toDate]);
+                return ["stockAuditList" => $stockAuditList]; 
+                break;
             default:
                 # code...
                 break;
@@ -1252,6 +1257,11 @@ class ManagersController extends Controller implements HasMiddleware
             case '14':
                 $inventoryAdjustmentList = DB::select("SELECT u.`name` 'admin', i.item_name, old_qty, new_qty, (new_qty - old_qty) 'difference', ql.date, ql.time FROM item_qty_logs ql JOIN items i ON ql.item_id = i.item_id JOIN users u ON ql.user_id = u.user_id JOIN user_roles ur ON u.role = ur.role_id WHERE ql.store_id = ? AND (new_qty - old_qty) <> 0 AND ur.role_level = 'ADMIN' AND (ql.date between ? AND ?) ORDER BY ql.id ASC", [Auth::user()->store_id, $fromDate, $toDate]);            
                 return Excel::download(new AdminInventoryAdjustment(["inventoryAdjustmentList" => $inventoryAdjustmentList]), "Admin_Inventory_Adjustment_" . $fromDate . "_TO_" . $toDate . ".xlsx");
+                
+                break;
+            case '15':
+                $stockAuditList = DB::select("SELECT u.`name` seller, i.item_name, old_qty, new_qty, (new_qty - old_qty) 'difference', ql.date, ql.time FROM item_qty_logs ql JOIN items i ON ql.item_id = i.item_id JOIN users u ON ql.user_id = u.user_id JOIN user_roles ur ON u.role = ur.role_id WHERE ql.store_id = ? AND (new_qty - old_qty) <> 0 AND ur.role_level <> 'ADMIN' AND (ql.date between ? AND ?) ORDER BY ql.id ASC", [Auth::user()->store_id, $fromDate, $toDate]);            
+                return Excel::download(new StockAudit(["stockAuditList" => $stockAuditList]), "Stock_Audit_" . $fromDate . "_TO_" . $toDate . ".xlsx");
                 
                 break;
             default:

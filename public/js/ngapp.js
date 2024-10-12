@@ -1333,6 +1333,7 @@ retailOffice.controller('report', function($scope, $http, $filter, $window, fns)
                 {value:12, type:"Top Customers by Amount"},
                 {value:13, type:"Top Customers by Volume"},
                 {value:14, type:"Admin Inventory Adjustment"},
+                {value:15, type:"Stock Audit Report"},
         ];
         
         $scope.selectedReport  = $scope.reportMenu[0];
@@ -1422,6 +1423,9 @@ retailOffice.controller('report', function($scope, $http, $filter, $window, fns)
                                 break;
                         case 14:
                                 $scope.inventoryAdjustmentList = res.data.inventoryAdjustmentList                                
+                                break;
+                        case 15:
+                                $scope.stockAuditList = res.data.stockAuditList                                
                                 break;
                         default:
                             break;
