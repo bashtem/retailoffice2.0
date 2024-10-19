@@ -408,8 +408,7 @@ salesPortal.controller("sales", function($scope,$location,$http, $filter, $timeo
                                         qty_id : $scope.selectQty.qty_id,
                                         cash_paid : $scope.cashPaid,
                                         order_total_qty : $scope.totalQtyVal,
-                                        receipt_printed : 1,
-                                        order_time : getTime()   } };
+                                        receipt_printed : 1 } };
                                         if(qz.websocket.isActive()){
                                                 modalProcessNotify("<i class='fal fa-cog fa-spin'></i> Processing...");
                                                 $scope.ajaxSave(subData);

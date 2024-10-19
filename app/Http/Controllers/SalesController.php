@@ -162,7 +162,8 @@ class SalesController extends Controller implements HasMiddleware
         $receiptDatas = array();
         $order = (array)$req->order;
         $invoiceNumber = 'SO-' . date('ymdhis');
-        $orderDatas = array_merge($order, ['merchant_id' => Auth::user()->merchant_id, 'store_id' => Auth::user()->store_id, 'order_no' => $invoiceNumber, 'user_id' => Auth::user()->user_id, 'order_date' => date('Y/m/d'), 'order_total_amount' => 0, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
+        $orderTime = date('h:i:s');
+        $orderDatas = array_merge($order, ['merchant_id' => Auth::user()->merchant_id, 'store_id' => Auth::user()->store_id, 'order_no' => $invoiceNumber, 'user_id' => Auth::user()->user_id, 'order_date' => date('Y/m/d'), 'order_time' => $orderTime, 'order_total_amount' => 0, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
         $orderArr = $req['orderItems'];
         $orderTotalAmount = 0; // NEW
 
@@ -198,7 +199,7 @@ class SalesController extends Controller implements HasMiddleware
                     throw "e";
                 }
                 $itemQty->update(['quantity' => $newQty, 'updated_at' => Carbon::now()]);
-                Item_qty_log::insert(['store_id' => Auth::user()->store_id, 'user_id' => Auth::user()->user_id, 'qty_id' => $req['order']['qty_id'], 'item_id' => $req['orderItems'][$x]['itemId'], 'old_qty' => $oldQty, 'new_qty' => $newQty, 'trans_id' => $transId->trans_id, 'date' => date('Y/m/d'), 'time' => $req['order']['order_time'], 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
+                Item_qty_log::insert(['store_id' => Auth::user()->store_id, 'user_id' => Auth::user()->user_id, 'qty_id' => $req['order']['qty_id'], 'item_id' => $req['orderItems'][$x]['itemId'], 'old_qty' => $oldQty, 'new_qty' => $newQty, 'trans_id' => $transId->trans_id, 'date' => date('Y/m/d'), 'time' => $orderTime, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
             }
 
             // DISCOUNT
@@ -206,7 +207,7 @@ class SalesController extends Controller implements HasMiddleware
                 $discount = Discount::where('cus_id', $req['order']['cus_id'])->first();
                 $newDiscount = $discount->discount_credit + $req['totalDiscount'];
                 Discount::where('cus_id', $req['order']['cus_id'])->update(['discount_credit' => $newDiscount, 'updated_at' => Carbon::now()]);
-                Discount_log::create(['order_id' => $order, 'total_discount' => $req->totalDiscount, 'date' => date('Y/m/d'), 'time' => $req['order']['order_time'], 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
+                Discount_log::create(['order_id' => $order, 'total_discount' => $req->totalDiscount, 'date' => date('Y/m/d'), 'time' => $orderTime, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
             }
 
             // CREDIT
@@ -219,7 +220,7 @@ class SalesController extends Controller implements HasMiddleware
                 $newOut = ($outCredit) + ($req['order']['order_total_amount']);
                 Credit::where('cus_id', $req['order']['cus_id'])->update(['available_credit' => $newAvail, 'out_credit' => $newOut, 'updated_at' => Carbon::now()]);
                 $creditOrderId = DB::table('credit_orders')->insertGetId(['order_id' => $order, 'credit_id' => $credit->credit_id, 'cus_id' => $req['order']['cus_id'], 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()], 'credit_order_id');
-                Credit_log::insert(['credit_order_id' => $creditOrderId, 'user_id' => Auth::user()->user_id, 'credit_log_status' => Enum::ORDER, 'old_credit' => $availCredit, 'new_credit' => $newAvail, 'credit_date' => date('Y/m/d'), 'credit_time' => $req['order']['order_time'], 'credit_id' => $credit->credit_id, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
+                Credit_log::insert(['credit_order_id' => $creditOrderId, 'user_id' => Auth::user()->user_id, 'credit_log_status' => Enum::ORDER, 'old_credit' => $availCredit, 'new_credit' => $newAvail, 'credit_date' => date('Y/m/d'), 'credit_time' => $orderTime, 'credit_id' => $credit->credit_id, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
             }
 
             // RECEIPT
@@ -255,7 +256,7 @@ class SalesController extends Controller implements HasMiddleware
                     'merchantAddress' => $merchant->address,
                     'merchantPhone' => $merchant->telephone,
                     'cusName' => $req->cus_name,
-                    'orderTime' => $req['order']['order_time'],
+                    'orderTime' => $orderTime,
                     'orderDate' => date("d-m-Y"),
                     'invoiceNumber' => $invoiceNumber,
                     'cashier' => Auth::user()->name,
