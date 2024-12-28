@@ -176,12 +176,14 @@ class ManagerApiController extends Controller implements HasMiddleware
                 $tieredModel = Item_tiered_price::where(["id" => $val['id']]);
                 if ($tieredModel->count() != 0) {
                     $first = $tieredModel->first();
-                    $tieredModel->update(['merchant_id' => Auth::user()->merchant_id, 'store_id' => Auth::user()->store_id, 'qty_id' => $val['qtyId'], 'item_id' => $data['itemId'], 'qty' => $val['qty'], 'price' => $val['price'], 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
                     Item_tiered_price_log::insert(['user_id' => Auth::user()->user_id, 'store_id' => Auth::user()->store_id, 'tiered_price_id' => $first->id, 'qty_id' => $val['qtyId'], 'item_id' => $data['itemId'], 'old_qty' => $first->qty, 'old_price' => $first->price, 'new_qty' => $val['qty'], 'new_price' => $val['price'], 'date' => date('Y-m-d'), 'time' => $data['time'], 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
                 } else {
-                    item_tiered_price::insert(['merchant_id' => Auth::user()->merchant_id, 'store_id' => Auth::user()->store_id, 'qty_id' => $val['qtyId'], 'item_id' => $data['itemId'], 'qty' => $val['qty'], 'price' => $val['price'], 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
+                    Item_tiered_price::where(['merchant_id' => Auth::user()->merchant_id,'store_id' => Auth::user()->store_id, 'qty_id' => $val['qtyId'], 'item_id' => $data['itemId']])->delete();
+                    $tieredPrices[] = ['merchant_id' => Auth::user()->merchant_id, 'store_id' => Auth::user()->store_id, 'qty_id' => $val['qtyId'], 'item_id' => $data['itemId'], 'qty' => $val['qty'], 'price' => $val['price'], 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()];
                 }
             }
+            item_tiered_price::insert($tieredPrices);
+            
         } catch (\Exception $e) {
             DB::rollback();
             return response()->json(["response" => "Price Update Failed", "status" => false]);
