@@ -167,6 +167,7 @@ class ManagerApiController extends Controller implements HasMiddleware
     function updatePrice(Request $req)
     {
         $data = $req->json()->all();
+        $tieredPrices = array();
         DB::beginTransaction();
         try {
             foreach ($data['prices'] as $key => $value) {
