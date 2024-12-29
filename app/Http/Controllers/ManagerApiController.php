@@ -42,6 +42,8 @@ use App\Models\User;
 use GuzzleHttp\Utils;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\Log;
+
 use function GuzzleHttp\json_decode;
 use Illuminate\Support\Facades\Validator;
 
@@ -185,6 +187,7 @@ class ManagerApiController extends Controller implements HasMiddleware
             item_tiered_price::insert($tieredPrices);
             
         } catch (\Exception $e) {
+            Log::error("price update failed", ["reason" => $e, "request" => $data]);
             DB::rollback();
             return response()->json(["response" => "Price Update Failed", "status" => false]);
         }
