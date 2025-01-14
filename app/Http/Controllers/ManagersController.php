@@ -940,7 +940,7 @@ class ManagersController extends Controller implements HasMiddleware
 
         switch ($req->reportType) {
             case '1':
-                $topSalesStock = DB::select("SELECT SUM(order_items.quantity) as totalQty, SUM((order_items.price)*(order_items.quantity)) as amount, order_items.price AS price, order_items.item_id, orders.qty_id, items.item_name, qty_types.qty_desc FROM order_items  JOIN orders ON order_items.order_id = orders.order_id JOIN items ON items.item_id = order_items.item_id JOIN qty_types ON orders.qty_id = qty_types.qty_id where orders.store_id = ? AND (date(order_items.created_at) between ? AND ?) AND orders.order_status !='CANCLED'  GROUP BY order_items.price, order_items.item_id  ORDER BY items.item_name", [Auth::user()->store_id, $req->fromDate, $req->toDate]);
+                $topSalesStock = DB::select("SELECT SUM(order_items.quantity) as totalQty, SUM((order_items.price)*(order_items.quantity)) as amount, SUM(order_items.cost_price * order_items.quantity) as cost_amount, SUM(order_items.amount - (order_items.cost_price * order_items.quantity)) as gross_profit,  order_items.item_id, orders.qty_id, items.item_name, qty_types.qty_desc FROM order_items  JOIN orders ON order_items.order_id = orders.order_id JOIN items ON items.item_id = order_items.item_id JOIN qty_types ON orders.qty_id = qty_types.qty_id where orders.store_id = ? AND (date(order_items.created_at) between ? AND ?) AND orders.order_status !='CANCLED'  GROUP BY order_items.item_id  ORDER BY items.item_name", [Auth::user()->store_id, $req->fromDate, $req->toDate]);
 
                 foreach ($qty as $val) {
 

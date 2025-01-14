@@ -98,19 +98,21 @@
                                                         <thead>
                                                                 <tr class="table-light">
                                                                         <th>ITEM</th>
-                                                                        <th>UNIT </th>
-                                                                        <th>UNIT PRICE</th>
+                                                                        <th>UNIT </th>                                                                       
                                                                         <th>QTY</th>
                                                                         <th>SALES AMOUNT</th>
+                                                                        <th>COST AMOUNT</th>
+                                                                        <th>GROSS PROFIT</th>
                                                                 </tr>
                                                         </thead>
                                                         <tbody>
                                                                 <tr ng-repeat="x in topSales">
                                                                         <td>@{{x.item_name}} </td>
-                                                                        <td>@{{x.qty_desc}} </td>
-                                                                        <td>@{{x.price | currency:"":2}} </td>
+                                                                        <td>@{{x.qty_desc}} </td>                                                                        
                                                                         <td>@{{x.totalQty | number}} </td>
                                                                         <td>@{{x.amount | currency:"":2}} </td>
+                                                                        <td>@{{x.cost_amount | currency:"":2}} </td>
+                                                                        <td>@{{x.gross_profit | currency:"":2}} </td>
                                                                 </tr>
                                                         </tbody>
                                                 </table>
