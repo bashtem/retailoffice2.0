@@ -183,7 +183,7 @@ class SalesController extends Controller implements HasMiddleware
                         $price = $itemPrice->max_price;
                 }
                 $amountEachItem = $price * $orderArr[$x]['qty'];  // NEW
-                $orderItems[] = ['order_id' => $order, 'item_id' => $orderArr[$x]['itemId'], 'quantity' => $orderArr[$x]['qty'], 'cost_price' => $itemPrice->price, 'price' => $price, 'amount' => $amountEachItem, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()];
+                $orderItems[] = ['order_id' => $order, 'item_id' => $orderArr[$x]['itemId'], 'quantity' => $orderArr[$x]['qty'], 'cost_price' => $itemPrice->price, 'cost_to_sell' => $itemPrice->min_price, 'price' => $price, 'amount' => $amountEachItem, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()];
                 $orderTotalAmount += $amountEachItem; // NEW
             }
             Order::where('order_id', $order)->update(['order_total_amount' => $orderTotalAmount]);

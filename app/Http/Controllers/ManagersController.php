@@ -917,6 +917,8 @@ class ManagersController extends Controller implements HasMiddleware
 
     public function salesReport(Request $req)
     {
+        $costPrice = $req["revaluedCost"] ? "order_items.cost_to_sell" : "order_items.cost_price";
+        $itemPrice = $req["revaluedCost"] ? "item_prices.min_price" : "item_prices.price";
 
         $qty = Qty_type::all();
 
@@ -926,7 +928,7 @@ class ManagersController extends Controller implements HasMiddleware
         if (($req->reportType >= 2) && ($req->reportType <= 6)) {
             $totalQty = $totalAmount = $totalCost = $totalGrossProfit = 0;
 
-            $totalsQuery = DB::select("SELECT order_items.quantity, (order_items.price * order_items.quantity) as amount, (order_items.cost_price * order_items.quantity) as cost, ((order_items.price * order_items.quantity) - (order_items.cost_price * order_items.quantity)) as gross_profit  FROM orders join order_items on orders.order_id = order_items.order_id  where orders.store_id = ? AND (orders.order_date between ? AND ?) AND orders.order_status !='CANCLED' AND orders.qty_id = ? ORDER BY orders.order_date", [Auth::user()->store_id, $req->fromDate, $req->toDate, $qtyId]);
+            $totalsQuery = DB::select("SELECT order_items.quantity, (order_items.price * order_items.quantity) as amount, ($costPrice * order_items.quantity) as cost, ((order_items.price * order_items.quantity) - ($costPrice * order_items.quantity)) as gross_profit  FROM orders join order_items on orders.order_id = order_items.order_id  where orders.store_id = ? AND (orders.order_date between ? AND ?) AND orders.order_status !='CANCLED' AND orders.qty_id = ? ORDER BY orders.order_date", [Auth::user()->store_id, $req->fromDate, $req->toDate, $qtyId]);
 
             (new Collection($totalsQuery))->each(function ($each) use (&$totalQty, &$totalAmount, &$totalCost, &$totalGrossProfit) {
                 $totalQty += $each->quantity;
@@ -940,7 +942,7 @@ class ManagersController extends Controller implements HasMiddleware
 
         switch ($req->reportType) {
             case '1':
-                $topSalesStock = DB::select("SELECT SUM(order_items.quantity) as totalQty, SUM((order_items.price)*(order_items.quantity)) as amount, SUM(order_items.cost_price * order_items.quantity) as cost_amount, SUM(order_items.amount - (order_items.cost_price * order_items.quantity)) as gross_profit,  order_items.item_id, orders.qty_id, items.item_name, qty_types.qty_desc FROM order_items  JOIN orders ON order_items.order_id = orders.order_id JOIN items ON items.item_id = order_items.item_id JOIN qty_types ON orders.qty_id = qty_types.qty_id where orders.store_id = ? AND (date(order_items.created_at) between ? AND ?) AND orders.order_status !='CANCLED'  GROUP BY order_items.item_id  ORDER BY items.item_name", [Auth::user()->store_id, $req->fromDate, $req->toDate]);
+                $topSalesStock = DB::select("SELECT SUM(order_items.quantity) as totalQty, SUM((order_items.price)*(order_items.quantity)) as amount, SUM($costPrice * order_items.quantity) as cost_amount, SUM(order_items.amount - ($costPrice * order_items.quantity)) as gross_profit,  order_items.item_id, orders.qty_id, items.item_name, qty_types.qty_desc FROM order_items  JOIN orders ON order_items.order_id = orders.order_id JOIN items ON items.item_id = order_items.item_id JOIN qty_types ON orders.qty_id = qty_types.qty_id where orders.store_id = ? AND (date(order_items.created_at) between ? AND ?) AND orders.order_status !='CANCLED'  GROUP BY order_items.item_id  ORDER BY items.item_name", [Auth::user()->store_id, $req->fromDate, $req->toDate]);
 
                 foreach ($qty as $val) {
 
@@ -962,12 +964,12 @@ class ManagersController extends Controller implements HasMiddleware
                 break;
 
             case '2':
-                $saleItems = DB::select("SELECT orders.order_date, orders.order_no, customers.cus_name, users.name, items.item_name, qty_types.qty_desc,  order_items.price, order_items.quantity, (order_items.price * order_items.quantity) as amount, (order_items.cost_price * order_items.quantity) as cost, ((order_items.price * order_items.quantity) - (order_items.cost_price * order_items.quantity)) as gross_profit  FROM orders join order_items on orders.order_id = order_items.order_id join items on items.item_id = order_items.item_id join customers on customers.cus_id = orders.cus_id join users on users.user_id = orders.user_id join qty_types on qty_types.qty_id = orders.qty_id where orders.store_id = ? AND (orders.order_date between ? AND ?) AND orders.order_status !='CANCLED' AND orders.qty_id = ? ORDER BY orders.order_date", [Auth::user()->store_id, $req->fromDate, $req->toDate, $qtyId]);
+                $saleItems = DB::select("SELECT orders.order_date, orders.order_no, customers.cus_name, users.name, items.item_name, qty_types.qty_desc,  order_items.price, order_items.quantity, (order_items.price * order_items.quantity) as amount, ($costPrice * order_items.quantity) as cost, ((order_items.price * order_items.quantity) - ($costPrice * order_items.quantity)) as gross_profit  FROM orders join order_items on orders.order_id = order_items.order_id join items on items.item_id = order_items.item_id join customers on customers.cus_id = orders.cus_id join users on users.user_id = orders.user_id join qty_types on qty_types.qty_id = orders.qty_id where orders.store_id = ? AND (orders.order_date between ? AND ?) AND orders.order_status !='CANCLED' AND orders.qty_id = ? ORDER BY orders.order_date", [Auth::user()->store_id, $req->fromDate, $req->toDate, $qtyId]);
                 return ["saleItems" => $saleItems, "totals" => $totals];
                 break;
 
             case '3':
-                $sales = DB::select("SELECT orders.order_date, customers.cus_name, orders.order_no, users.name, payment_types.payment_desc, orders.order_total_amount as amount, sum(order_items.quantity * order_items.cost_price) as 'cost', sum(order_items.amount - (order_items.quantity * order_items.cost_price)) as 'gross_margin' from orders join customers on customers.cus_id = orders.cus_id join users on users.user_id = orders.user_id join payment_types on payment_types.payment_id = orders.payment_id join order_items on order_items.order_id = orders.order_id where orders.store_id = ? AND (orders.order_date between ? AND ?) AND orders.order_status !='CANCLED' AND orders.qty_id = ? GROUP BY orders.order_no ORDER BY orders.order_date", [Auth::user()->store_id, $req->fromDate, $req->toDate, $qtyId]);
+                $sales = DB::select("SELECT orders.order_date, customers.cus_name, orders.order_no, users.name, payment_types.payment_desc, orders.order_total_amount as amount, sum(order_items.quantity * $costPrice) as 'cost', sum(order_items.amount - (order_items.quantity * $costPrice)) as 'gross_margin' from orders join customers on customers.cus_id = orders.cus_id join users on users.user_id = orders.user_id join payment_types on payment_types.payment_id = orders.payment_id join order_items on order_items.order_id = orders.order_id where orders.store_id = ? AND (orders.order_date between ? AND ?) AND orders.order_status !='CANCLED' AND orders.qty_id = ? GROUP BY orders.order_no ORDER BY orders.order_date", [Auth::user()->store_id, $req->fromDate, $req->toDate, $qtyId]);
                 return ["sales" => $sales, "totals" => $totals];
                 break;
 
@@ -977,7 +979,7 @@ class ManagersController extends Controller implements HasMiddleware
                 break;
 
             case '5':
-                $dailySalesSummary = DB::select("SELECT date(order_items.created_at) as 'order_date', sum(order_items.quantity) as volume, sum(order_items.amount) as amount, sum(order_items.quantity * order_items.cost_price) as cost, sum(order_items.amount - (order_items.quantity * order_items.cost_price)) as 'gross_profit' from order_items join orders on orders.order_id = order_items.order_id where orders.store_id = ? AND (orders.order_date between ? AND ?) AND orders.order_status !='CANCLED' AND orders.qty_id = ? GROUP BY orders.order_date ORDER BY orders.order_date", [Auth::user()->store_id, $req->fromDate, $req->toDate, $qtyId]);
+                $dailySalesSummary = DB::select("SELECT date(order_items.created_at) as 'order_date', sum(order_items.quantity) as volume, sum(order_items.amount) as amount, sum(order_items.quantity * $costPrice) as cost, sum(order_items.amount - (order_items.quantity * $costPrice)) as 'gross_profit' from order_items join orders on orders.order_id = order_items.order_id where orders.store_id = ? AND (orders.order_date between ? AND ?) AND orders.order_status !='CANCLED' AND orders.qty_id = ? GROUP BY orders.order_date ORDER BY orders.order_date", [Auth::user()->store_id, $req->fromDate, $req->toDate, $qtyId]);
                 return ["dailySalesSummary" => $dailySalesSummary, "totals" => $totals];
                 break;
 
@@ -988,7 +990,7 @@ class ManagersController extends Controller implements HasMiddleware
 
             case '7':
                 $allItemsTotalQty = 0;
-                $allItems = DB::select("SELECT items.item_name, qty_types.qty_desc, item_qties.quantity as 'qty_in_store', item_prices.price as 'cost_price', item_prices.max_price as 'sale_price' from items join item_qties on (items.item_id = item_qties.item_id AND item_qties.qty_id = ?) join qty_types on qty_types.qty_id = ? join item_prices on (items.item_id = item_prices.item_id AND item_prices.qty_id = ?) where items.merchant_id = ? AND item_prices.store_id = ? AND item_qties.store_id = ? ", [$qtyId, $qtyId, $qtyId, Auth::user()->merchant_id, Auth::user()->store_id, Auth::user()->store_id]);
+                $allItems = DB::select("SELECT items.item_name, qty_types.qty_desc, item_qties.quantity as 'qty_in_store',  $itemPrice as 'cost_price', item_prices.max_price as 'sale_price' from items join item_qties on (items.item_id = item_qties.item_id AND item_qties.qty_id = ?) join qty_types on qty_types.qty_id = ? join item_prices on (items.item_id = item_prices.item_id AND item_prices.qty_id = ?) where items.merchant_id = ? AND item_prices.store_id = ? AND item_qties.store_id = ? ", [$qtyId, $qtyId, $qtyId, Auth::user()->merchant_id, Auth::user()->store_id, Auth::user()->store_id]);
                 (new Collection($allItems))->each(function ($each) use (&$allItemsTotalQty) {
                     $allItemsTotalQty += $each->qty_in_store;
                 });
@@ -1023,10 +1025,10 @@ class ManagersController extends Controller implements HasMiddleware
 
                 $stores = DB::select("SELECT * FROM merchant_stores where merchant_id = ? ", [Auth::user()->merchant_id]);
 
-                (new Collection($stores))->each(function ($eachStore) use ($req, $qtyId, &$result, &$grandTotalQty, &$grandTotalAmount, &$grandTotalCost, &$grandTotalGrossProfit) {
+                (new Collection($stores))->each(function ($eachStore) use ($req, $qtyId, &$result, &$grandTotalQty, &$grandTotalAmount, &$grandTotalCost, &$grandTotalGrossProfit, &$costPrice) {
                     $totalQty = $totalAmount = $totalCost = $totalGrossProfit = 0;
 
-                    $eachStoreSummary = DB::select("SELECT date(order_items.created_at) as 'order_date', sum(order_items.quantity) as volume, sum(order_items.amount) as amount, sum(order_items.quantity * order_items.cost_price) as cost, sum(order_items.amount - (order_items.quantity * order_items.cost_price)) as 'gross_profit' from order_items join orders on orders.order_id = order_items.order_id where orders.store_id = ? AND (orders.order_date between ? AND ?) AND orders.order_status !='CANCLED' AND orders.qty_id = ? GROUP BY orders.order_date ORDER BY orders.order_date", [$eachStore->store_id, $req->fromDate, $req->toDate, $qtyId]);
+                    $eachStoreSummary = DB::select("SELECT date(order_items.created_at) as 'order_date', sum(order_items.quantity) as volume, sum(order_items.amount) as amount, sum(order_items.quantity * $costPrice) as cost, sum(order_items.amount - (order_items.quantity * $costPrice)) as 'gross_profit' from order_items join orders on orders.order_id = order_items.order_id where orders.store_id = ? AND (orders.order_date between ? AND ?) AND orders.order_status !='CANCLED' AND orders.qty_id = ? GROUP BY orders.order_date ORDER BY orders.order_date", [$eachStore->store_id, $req->fromDate, $req->toDate, $qtyId]);
 
                     (new Collection($eachStoreSummary))->each(function ($each) use (&$totalQty, &$totalAmount, &$totalCost, &$totalGrossProfit) {
                         $totalQty += $each->volume;
@@ -1091,13 +1093,15 @@ class ManagersController extends Controller implements HasMiddleware
         }
     }
 
-    public function downloadReport($fromDate, $toDate, $reportType, $qtyId)
+    public function downloadReport($fromDate, $toDate, $reportType, $qtyId, Request $req)
     {
+        $costPrice = $req["revaluedCost"] ? "order_items.cost_to_sell" : "order_items.cost_price";
+        $itemPrice = $req["revaluedCost"] ? "item_prices.min_price" : "item_prices.price";
 
         if (($reportType >= 1) && ($reportType <= 6)) {
 
             $totalQty = $totalAmount = $totalCost = $totalGrossProfit = 0;
-            $totalsQuery = DB::select("SELECT order_items.quantity, (order_items.price * order_items.quantity) as amount, (order_items.cost_price * order_items.quantity) as cost, ((order_items.price * order_items.quantity) - (order_items.cost_price * order_items.quantity)) as gross_profit  FROM orders join order_items on orders.order_id = order_items.order_id where orders.store_id = ? AND (orders.order_date between ? AND ?) AND orders.order_status !='CANCLED' AND orders.qty_id = ? ORDER BY orders.order_date", [Auth::user()->store_id, $fromDate, $toDate, $qtyId]);
+            $totalsQuery = DB::select("SELECT order_items.quantity, (order_items.price * order_items.quantity) as amount, ($costPrice * order_items.quantity) as cost, ((order_items.price * order_items.quantity) - ($costPrice * order_items.quantity)) as gross_profit  FROM orders join order_items on orders.order_id = order_items.order_id where orders.store_id = ? AND (orders.order_date between ? AND ?) AND orders.order_status !='CANCLED' AND orders.qty_id = ? ORDER BY orders.order_date", [Auth::user()->store_id, $fromDate, $toDate, $qtyId]);
             (new Collection($totalsQuery))->each(function ($each) use (&$totalQty, &$totalAmount, &$totalCost, &$totalGrossProfit) {
                 $totalQty += $each->quantity;
                 $totalAmount += $each->amount;
@@ -1109,15 +1113,15 @@ class ManagersController extends Controller implements HasMiddleware
 
         switch ($reportType) {
             case '1':
-                return Excel::download(new TopSalesStock(["storeId" => Auth::user()->store_id, "fromDate" => $fromDate, "toDate" => $toDate, "totals" => $totals, "qtyId" => $qtyId]), "Top_Sales_Stock_" . $fromDate . "_TO_" . $toDate . ".xlsx");
+                return Excel::download(new TopSalesStock(["storeId" => Auth::user()->store_id, "fromDate" => $fromDate, "toDate" => $toDate, "totals" => $totals, "qtyId" => $qtyId, "costPrice" => $costPrice]), "Top_Sales_Stock_" . $fromDate . "_TO_" . $toDate . ".xlsx");
                 break;
 
             case '2':
-                return Excel::download(new SaleItems(["storeId" => Auth::user()->store_id, "fromDate" => $fromDate, "toDate" => $toDate, "totals" => $totals, "qtyId" => $qtyId]), "Sale_Items_" . $fromDate . "_TO_" . $toDate . ".xlsx");
+                return Excel::download(new SaleItems(["storeId" => Auth::user()->store_id, "fromDate" => $fromDate, "toDate" => $toDate, "totals" => $totals, "qtyId" => $qtyId, "costPrice" => $costPrice]), "Sale_Items_" . $fromDate . "_TO_" . $toDate . ".xlsx");
                 break;
 
             case '3':
-                return Excel::download(new Sales(["storeId" => Auth::user()->store_id, "fromDate" => $fromDate, "toDate" => $toDate, "totals" => $totals, "qtyId" => $qtyId]), "Sales_" . $fromDate . "_TO_" . $toDate . ".xlsx");
+                return Excel::download(new Sales(["storeId" => Auth::user()->store_id, "fromDate" => $fromDate, "toDate" => $toDate, "totals" => $totals, "qtyId" => $qtyId, "costPrice" => $costPrice]), "Sales_" . $fromDate . "_TO_" . $toDate . ".xlsx");
                 break;
 
             case '4':
@@ -1125,7 +1129,7 @@ class ManagersController extends Controller implements HasMiddleware
                 break;
 
             case '5':
-                return Excel::download(new DailySalesSummary(["storeId" => Auth::user()->store_id, "fromDate" => $fromDate, "toDate" => $toDate, "totals" => $totals, "qtyId" => $qtyId]), "Daily_Sales_Summary_" . $fromDate . "_TO_" . $toDate . ".xlsx");
+                return Excel::download(new DailySalesSummary(["storeId" => Auth::user()->store_id, "fromDate" => $fromDate, "toDate" => $toDate, "totals" => $totals, "qtyId" => $qtyId, "costPrice" => $costPrice]), "Daily_Sales_Summary_" . $fromDate . "_TO_" . $toDate . ".xlsx");
                 break;
 
             case '6':
@@ -1134,7 +1138,7 @@ class ManagersController extends Controller implements HasMiddleware
 
             case '7':
                 $allItemsTotalQty = 0;
-                $allItems = DB::select("SELECT items.item_name, qty_types.qty_desc, item_qties.quantity as 'qty_in_store', item_prices.price as 'cost_price', item_prices.max_price as 'sale_price' from items join item_qties on (items.item_id = item_qties.item_id AND item_qties.qty_id = ? ) join qty_types on qty_types.qty_id = ? join item_prices on (items.item_id = item_prices.item_id AND  item_prices.qty_id = ? ) where items.merchant_id = ? AND item_prices.store_id = ? AND item_qties.store_id = ?", [$qtyId, $qtyId, $qtyId, Auth::user()->merchant_id, Auth::user()->store_id, Auth::user()->store_id]);
+                $allItems = DB::select("SELECT items.item_name, qty_types.qty_desc, item_qties.quantity as 'qty_in_store', $itemPrice as 'cost_price', item_prices.max_price as 'sale_price' from items join item_qties on (items.item_id = item_qties.item_id AND item_qties.qty_id = ? ) join qty_types on qty_types.qty_id = ? join item_prices on (items.item_id = item_prices.item_id AND  item_prices.qty_id = ? ) where items.merchant_id = ? AND item_prices.store_id = ? AND item_qties.store_id = ?", [$qtyId, $qtyId, $qtyId, Auth::user()->merchant_id, Auth::user()->store_id, Auth::user()->store_id]);
                 (new Collection($allItems))->each(function ($each) use (&$allItemsTotalQty) {
                     $allItemsTotalQty += $each->qty_in_store;
                 });
@@ -1171,7 +1175,7 @@ class ManagersController extends Controller implements HasMiddleware
 
                 $stores = DB::select("SELECT * FROM merchant_stores where merchant_id = ? ", [Auth::user()->merchant_id]);
 
-                (new Collection($stores))->each(function ($eachStore, $index) use ($stores, $fromDate, $toDate, $qtyId, &$result, &$grandTotalQty, &$grandTotalAmount, &$grandTotalCost, &$grandTotalGrossProfit) {
+                (new Collection($stores))->each(function ($eachStore, $index) use ($stores, $fromDate, $toDate, $qtyId, &$result, &$grandTotalQty, &$grandTotalAmount, &$grandTotalCost, &$grandTotalGrossProfit, &$costPrice) {
 
                     $totalQty = $totalAmount = $totalCost = $totalGrossProfit = 0;
 
@@ -1179,7 +1183,7 @@ class ManagersController extends Controller implements HasMiddleware
 
                     $result = $result->merge([['order_date' => "ORDER DATE", 'volume' => "QUANTITY", 'amount' => "AMOUNT", 'cost' => "COST", 'gross_profit' => "GROSS PROFIT"]]);
 
-                    $eachStoreSummary = DB::select("SELECT date(order_items.created_at) as 'order_date', sum(order_items.quantity) as volume, sum(order_items.amount) as amount, sum(order_items.quantity * order_items.cost_price) as cost, sum(order_items.amount - (order_items.quantity * order_items.cost_price)) as 'gross_profit' from order_items join orders on orders.order_id = order_items.order_id where orders.store_id = ? AND (orders.order_date between ? AND ?) AND orders.order_status !='CANCLED' AND orders.qty_id = ?  GROUP BY orders.order_date ORDER BY orders.order_date", [$eachStore->store_id, $fromDate, $toDate, $qtyId]);
+                    $eachStoreSummary = DB::select("SELECT date(order_items.created_at) as 'order_date', sum(order_items.quantity) as volume, sum(order_items.amount) as amount, sum(order_items.quantity * $costPrice) as cost, sum(order_items.amount - (order_items.quantity * $costPrice)) as 'gross_profit' from order_items join orders on orders.order_id = order_items.order_id where orders.store_id = ? AND (orders.order_date between ? AND ?) AND orders.order_status !='CANCLED' AND orders.qty_id = ?  GROUP BY orders.order_date ORDER BY orders.order_date", [$eachStore->store_id, $fromDate, $toDate, $qtyId]);
 
                     $result = $result->merge($eachStoreSummary);
 

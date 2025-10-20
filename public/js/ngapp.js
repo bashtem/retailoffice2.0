@@ -1345,17 +1345,18 @@ retailOffice.controller('report', function($scope, $http, $filter, $window, fns)
                 $scope.toUiOpen = true;
         }
 
+        $scope.reportUrl = "salesreport"
+
         fns.qtyTypes().then(res => {
             $scope.qtyTypeList = res.data.qtyTypes
             $scope.qtyTypeId = $scope.qtyTypeList[1];
         }).then(res => {
-
             $scope.salesReport = function(){
                 $scope.showLoader = true;
                 var fromDate = $filter('date')($scope.fromDate,"yyyy-MM-dd");
                 var toDate = $filter('date')($scope.toDate,"yyyy-MM-dd");
                 var datas = {fromDate: fromDate, toDate: toDate, reportType : $scope.selectedReport.value, qtyId: $scope.qtyTypeId.qty_id };
-                $http({method:"POST", url:"salesreport", data:datas}).then((res)=>{
+                $http({method:"POST", url:$scope.reportUrl, data:datas}).then((res)=>{
                     $scope.showLoader = false;
                     switch ($scope.selectedReport.value) {
                         case 1:
@@ -1434,18 +1435,36 @@ retailOffice.controller('report', function($scope, $http, $filter, $window, fns)
             }
 
             $scope.salesReport();
-
         })
 
-       
+        $scope.costPriceReport = function(){
+                $scope.reportUrl = "salesreport";
+                $scope.salesReport();
+        }
 
-        $scope.downloadReport = function(){
+        $scope.revaluedCostReport = function(){
+                $scope.reportUrl = "salesreport?revaluedCost=true";
+                $scope.salesReport();
+        }
+
+        $scope.reportParams = function(){
             var fromDate = $filter('date')($scope.fromDate,"yyyy-MM-dd");
             var toDate = $filter('date')($scope.toDate,"yyyy-MM-dd");
             var reportType = $scope.selectedReport.value;
             var qtyId = $scope.qtyTypeId.qty_id;
-            var landingUrl = "downloadreport/"+fromDate+"/"+toDate+"/"+reportType+"/"+qtyId;
-            $window.location.href = landingUrl;       
+            return {fromDate, toDate, reportType, qtyId};                 
+        }
+
+        $scope.downloadReport = function(){
+                var {fromDate, toDate, reportType, qtyId} = $scope.reportParams();
+                var landingUrl = "downloadreport/"+fromDate+"/"+toDate+"/"+reportType+"/"+qtyId;
+                $window.location.href = landingUrl;        
+        }
+       
+        $scope.downloadRevaluedCostReport = function(){
+                var {fromDate, toDate, reportType, qtyId} = $scope.reportParams();
+                var landingUrl = "downloadreport/"+fromDate+"/"+toDate+"/"+reportType+"/"+qtyId+"?revaluedCost=true";
+                $window.location.href = landingUrl;        
         }
 
 })
