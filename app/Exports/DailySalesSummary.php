@@ -26,7 +26,7 @@ class DailySalesSummary implements FromCollection, WithHeadings, ShouldAutoSize,
 
     public function __construct($data){
         $this->data = $data;
-        $this->reportResult = DB::select("SELECT date(order_items.created_at) as 'order_date', sum(order_items.quantity) as volume, sum(order_items.amount) as amount, sum(order_items.quantity * ?) as cost, sum(order_items.amount - (order_items.quantity * ?)) as 'gross_profit' from order_items join orders on orders.order_id = order_items.order_id where  orders.store_id = ? AND (orders.order_date between ? AND ?) AND orders.order_status !='CANCLED' AND orders.qty_id = ? GROUP BY orders.order_date ORDER BY orders.order_date", [ $this->data['costPrice'], $this->data['costPrice'], $this->data['storeId'], $this->data['fromDate'], $this->data['toDate'], $this->data['qtyId'] ] );
+        $this->reportResult = DB::select("SELECT date(order_items.created_at) as 'order_date', sum(order_items.quantity) as volume, sum(order_items.amount) as amount, sum(order_items.quantity * ".$this->data['costPrice'].") as cost, sum(order_items.amount - (order_items.quantity * ".$this->data['costPrice'].")) as 'gross_profit' from order_items join orders on orders.order_id = order_items.order_id where  orders.store_id = ? AND (orders.order_date between ? AND ?) AND orders.order_status !='CANCLED' AND orders.qty_id = ? GROUP BY orders.order_date ORDER BY orders.order_date", [ $this->data['storeId'], $this->data['fromDate'], $this->data['toDate'], $this->data['qtyId'] ] );
         $this->totalRow = (new Collection($this->reportResult))->count() + 2;
     }
 
