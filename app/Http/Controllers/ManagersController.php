@@ -1097,6 +1097,7 @@ class ManagersController extends Controller implements HasMiddleware
     {
         $costPrice = $req["revaluedCost"] ? "order_items.cost_to_sell" : "order_items.cost_price";
         $itemPrice = $req["revaluedCost"] ? "item_prices.min_price" : "item_prices.price";
+        $modifiedFileName = $req["revaluedCost"] ? "Revalued_Cost_" : "";
 
         if (($reportType >= 1) && ($reportType <= 6)) {
 
@@ -1113,27 +1114,27 @@ class ManagersController extends Controller implements HasMiddleware
 
         switch ($reportType) {
             case '1':
-                return Excel::download(new TopSalesStock(["storeId" => Auth::user()->store_id, "fromDate" => $fromDate, "toDate" => $toDate, "totals" => $totals, "qtyId" => $qtyId, "costPrice" => $costPrice]), "Top_Sales_Stock_" . $fromDate . "_TO_" . $toDate . ".xlsx");
+                return Excel::download(new TopSalesStock(["storeId" => Auth::user()->store_id, "fromDate" => $fromDate, "toDate" => $toDate, "totals" => $totals, "qtyId" => $qtyId, "costPrice" => $costPrice]), $modifiedFileName."Top_Sales_Stock_" . $fromDate . "_TO_" . $toDate . ".xlsx");
                 break;
 
             case '2':
-                return Excel::download(new SaleItems(["storeId" => Auth::user()->store_id, "fromDate" => $fromDate, "toDate" => $toDate, "totals" => $totals, "qtyId" => $qtyId, "costPrice" => $costPrice]), "Sale_Items_" . $fromDate . "_TO_" . $toDate . ".xlsx");
+                return Excel::download(new SaleItems(["storeId" => Auth::user()->store_id, "fromDate" => $fromDate, "toDate" => $toDate, "totals" => $totals, "qtyId" => $qtyId, "costPrice" => $costPrice]), $modifiedFileName."Sale_Items_" . $fromDate . "_TO_" . $toDate . ".xlsx");
                 break;
 
             case '3':
-                return Excel::download(new Sales(["storeId" => Auth::user()->store_id, "fromDate" => $fromDate, "toDate" => $toDate, "totals" => $totals, "qtyId" => $qtyId, "costPrice" => $costPrice]), "Sales_" . $fromDate . "_TO_" . $toDate . ".xlsx");
+                return Excel::download(new Sales(["storeId" => Auth::user()->store_id, "fromDate" => $fromDate, "toDate" => $toDate, "totals" => $totals, "qtyId" => $qtyId, "costPrice" => $costPrice]), $modifiedFileName."Sales_" . $fromDate . "_TO_" . $toDate . ".xlsx");
                 break;
 
             case '4':
-                return Excel::download(new SalesItemsByUnitPrice(["storeId" => Auth::user()->store_id, "fromDate" => $fromDate, "toDate" => $toDate, "totals" => $totals, "qtyId" => $qtyId]), "Sale_Items_Summary_Group_By_Unit_Price_" . $fromDate . "_TO_" . $toDate . ".xlsx");
+                return Excel::download(new SalesItemsByUnitPrice(["storeId" => Auth::user()->store_id, "fromDate" => $fromDate, "toDate" => $toDate, "totals" => $totals, "qtyId" => $qtyId]), $modifiedFileName."Sale_Items_Summary_Group_By_Unit_Price_" . $fromDate . "_TO_" . $toDate . ".xlsx");
                 break;
 
             case '5':
-                return Excel::download(new DailySalesSummary(["storeId" => Auth::user()->store_id, "fromDate" => $fromDate, "toDate" => $toDate, "totals" => $totals, "qtyId" => $qtyId, "costPrice" => $costPrice]), "Daily_Sales_Summary_" . $fromDate . "_TO_" . $toDate . ".xlsx");
+                return Excel::download(new DailySalesSummary(["storeId" => Auth::user()->store_id, "fromDate" => $fromDate, "toDate" => $toDate, "totals" => $totals, "qtyId" => $qtyId, "costPrice" => $costPrice]), $modifiedFileName."Daily_Sales_Summary_" . $fromDate . "_TO_" . $toDate . ".xlsx");
                 break;
 
             case '6':
-                return Excel::download(new SaleItemsSummary(["storeId" => Auth::user()->store_id, "fromDate" => $fromDate, "toDate" => $toDate, "totals" => $totals, "qtyId" => $qtyId]), "Sale_Items_Summary_" . $fromDate . "_TO_" . $toDate . ".xlsx");
+                return Excel::download(new SaleItemsSummary(["storeId" => Auth::user()->store_id, "fromDate" => $fromDate, "toDate" => $toDate, "totals" => $totals, "qtyId" => $qtyId]), $modifiedFileName."Sale_Items_Summary_" . $fromDate . "_TO_" . $toDate . ".xlsx");
                 break;
 
             case '7':
@@ -1143,7 +1144,7 @@ class ManagersController extends Controller implements HasMiddleware
                     $allItemsTotalQty += $each->qty_in_store;
                 });
                 $totals = ["totalQty" => $allItemsTotalQty, "allItems" => $allItems];
-                return Excel::download(new AllItems($totals), "All_Items.xlsx");
+                return Excel::download(new AllItems($totals), $modifiedFileName."All_Items.xlsx");
                 break;
 
             case '8':
@@ -1206,7 +1207,7 @@ class ManagersController extends Controller implements HasMiddleware
 
                 $result = $result->merge([["title" => "GRAND TOTAL", "grandTotalQty" => $grandTotalQty, "grandTotalAmount" => $grandTotalAmount, "grandTotalCost" => $grandTotalCost, "grandTotalGrossProfit" => $grandTotalGrossProfit]]);
 
-                return Excel::download(new TotalSummary(["data" => $result]), "Total_Summary_" . $fromDate . "_TO_" . $toDate . ".xlsx");
+                return Excel::download(new TotalSummary(["data" => $result]), $modifiedFileName."Total_Summary_" . $fromDate . "_TO_" . $toDate . ".xlsx");
 
                 break;
 
@@ -1223,7 +1224,7 @@ class ManagersController extends Controller implements HasMiddleware
 
                 $totals = ["totalTicket" => $totalTicket, "totalQty" => $totalQty, "totalAmount" => $totalAmount];
 
-                return Excel::download(new CustomerTicket(["cusByTicketList" => $cusByTicketList, "totals" => $totals]), "Top_Customers_By_Ticket_" . $fromDate . "_TO_" . $toDate . ".xlsx");
+                return Excel::download(new CustomerTicket(["cusByTicketList" => $cusByTicketList, "totals" => $totals]), $modifiedFileName."Top_Customers_By_Ticket_" . $fromDate . "_TO_" . $toDate . ".xlsx");
 
                 break;
 
@@ -1239,7 +1240,7 @@ class ManagersController extends Controller implements HasMiddleware
 
                 $totals = ["totalQty" => $totalQty, "totalAmount" => $totalAmount];
 
-                return Excel::download(new CustomerAmount(["cusByAmountList" => $cusByAmountList, "totals" => $totals]), "Top_Customers_By_Amount_" . $fromDate . "_TO_" . $toDate . ".xlsx");
+                return Excel::download(new CustomerAmount(["cusByAmountList" => $cusByAmountList, "totals" => $totals]), $modifiedFileName."Top_Customers_By_Amount_" . $fromDate . "_TO_" . $toDate . ".xlsx");
 
                 break;
 
@@ -1255,7 +1256,7 @@ class ManagersController extends Controller implements HasMiddleware
 
                 $totals = ["totalQty" => $totalQty, "totalAmount" => $totalAmount];
 
-                return Excel::download(new CustomerVolume(["cusByVolumeList" => $cusByVolumeList, "totals" => $totals]), "Top_Customers_By_Volume_" . $fromDate . "_TO_" . $toDate . ".xlsx");
+                return Excel::download(new CustomerVolume(["cusByVolumeList" => $cusByVolumeList, "totals" => $totals]), $modifiedFileName."Top_Customers_By_Volume_" . $fromDate . "_TO_" . $toDate . ".xlsx");
 
                 break;
             case '14':
